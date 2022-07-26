@@ -1,9 +1,11 @@
 package tool.common.aop;
 
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -46,51 +48,63 @@ public class LogAspct {
         log.info("{} 開始.", execTarget);
         log.info("apiEntry：[{}]", apiEntry);
 
-        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder
-                .getRequestAttributes();
-        HttpServletRequest httpServletRequest = servletRequestAttributes.getRequest();
+        if (log.isDebugEnabled()) {
+            // RequestAttributesの取得.
+            ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder
+                    .getRequestAttributes();
+            HttpServletRequest request = requestAttributes.getRequest();
 
-        // リクエストパス出力.
-        log.debug("[[{}]]", httpServletRequest.getServletPath());
+            // リクエストパス出力.
+            log.debug("[[{}]]", request.getServletPath());
 
-        // リクエストヘッダ出力.
-        Enumeration<String> headerNames = httpServletRequest.getHeaderNames();
-        log.debug("[HttpRequestHeader]");
-        while (headerNames.hasMoreElements()) {
-            String headerName = headerNames.nextElement();
-            String headerValue = httpServletRequest.getHeader(headerName);
-            if (Objects.nonNull(headerValue)) {
-                log.debug("{}：[{}]", headerName, headerValue);
-            } else {
-                log.debug("{} is null.", headerName);
+            // リクエストメソッド出力.
+            log.debug("[HttpRequestMethod]");
+            log.debug("[{}]", request.getMethod());
+
+            // リクエストヘッダ出力.
+            log.debug("[HttpRequestHeader]");
+            Enumeration<String> headerNames = request.getHeaderNames();
+            while (headerNames.hasMoreElements()) {
+                String headerName = headerNames.nextElement();
+                Enumeration<String> headerValues = request.getHeaders(headerName);
+                while (headerValues.hasMoreElements()) {
+                    String headerValue = headerValues.nextElement();
+                    if (Objects.nonNull(headerValue)) {
+                        log.debug("{}：[{}]", headerName, headerValue);
+                    } else {
+                        log.debug("{} is null.", headerName);
+                    }
+                }
             }
-        }
 
-        // リクエストパラメータ(実行メソッドの引数)出力.
-        CodeSignature codeSignature = (CodeSignature) signature;
-        String[] paramNames = codeSignature.getParameterNames();
-        Object[] paramValues = pjp.getArgs();
-        log.debug("[HttpRequestParameter(Method args)]");
-        for (int idx = 0; idx < paramNames.length; idx++) {
-            String paramName = paramNames[idx];
-            Object paramValue = paramValues[idx];
-            if (Objects.nonNull(paramValue)) {
-                log.debug("{}：[{}]", paramName, paramValue);
-            } else {
-                log.debug("{} is null.", paramName);
+            // リクエストパラメータ(実行メソッドの引数)出力.
+            log.debug("[HttpRequestParameter(Method args)]");
+            CodeSignature codeSignature = (CodeSignature) signature;
+            String[] parameterNames = codeSignature.getParameterNames();
+            Object[] args = pjp.getArgs();
+            for (int idx = 0; idx < parameterNames.length; idx++) {
+                String parameterName = parameterNames[idx];
+                Object arg = args[idx];
+                if (Objects.nonNull(arg)) {
+                    log.debug("{}：[{}]", parameterName, arg);
+                } else {
+                    log.debug("{} is null.", parameterName);
+                }
             }
-        }
 
-        // リクエストパラメータ(クエリパラメータ＆フォームデータ)出力.
-        Map<String, String[]> parameterMap = httpServletRequest.getParameterMap();
-        log.debug("[HttpRequestParameter(Query parameter & Form data)]");
-        for (Iterator<String> it = parameterMap.keySet().iterator(); it.hasNext();) {
-            String paramName = it.next();
-            Object paramValue = parameterMap.get(paramName);
-            if (Objects.nonNull(paramValue)) {
-                log.debug("{}：{}", paramName, paramValue);
-            } else {
-                log.debug("{} is null.", paramName);
+            // リクエストパラメータ(クエリパラメータ＆フォームデータ)出力.
+            log.debug("[HttpRequestParameter(Query parameter & Form data)]");
+            Map<String, String[]> parameterMap = request.getParameterMap();
+            Set<String> set = parameterMap.keySet();
+            Iterator<String> iterator = set.iterator();
+            while (iterator.hasNext()) {
+                String parameterName = iterator.next();
+                String[] parameterValues = parameterMap.get(parameterName);
+                if (Objects.nonNull(parameterValues)) {
+                    log.debug("{}：{}", parameterName, Arrays.toString(parameterValues));
+                } else {
+                    log.debug("{} is null.", parameterName);
+                }
             }
         }
 

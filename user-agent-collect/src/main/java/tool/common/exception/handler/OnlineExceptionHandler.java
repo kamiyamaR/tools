@@ -38,7 +38,7 @@ public class OnlineExceptionHandler {
      */
     @ExceptionHandler(value = Exception.class)
     public ResponseEntity<Void> handleException(Exception ex) {
-        this.messageLogger.log("E_COM_FW_000_001", ex);
+        this.messageLogger.log("E_COM_0001", ex);
         return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
