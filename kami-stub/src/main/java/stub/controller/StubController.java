@@ -1,11 +1,19 @@
 package stub.controller;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,6 +37,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 public class StubController {
+
+    private static final String CRLF = "\r\n";
 
     private static final String DEFAULT_RESPONSE_FILE = "default.txt";
 
@@ -57,11 +67,57 @@ public class StubController {
     }
 
     private void exec(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        setResponse(response, DEFAULT_RESPONSE_FILE);
+
+        String responseFileName = DEFAULT_RESPONSE_FILE;
+        setResponse(response, responseFileName);
     }
 
+    private void printRequest(HttpServletRequest request) throws IOException {
+        log.info("------------------------> [入力情報]");
+        log.info("from=[{}:{}]", request.getRemoteAddr(), request.getRemotePort());
+        log.info("URL=[{}]", request.getRequestURL().toString());
+        log.info("Method=[{}]", request.getMethod());
+
+        // リクエストヘッダ出力
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            Enumeration<String> headerValues = request.getHeaders(headerName);
+            while (headerValues.hasMoreElements()) {
+                String headerValue = headerValues.nextElement();
+                log.info(" Header  key=[{}]/value=[{}]", headerName, headerValue);
+            }
+        }
+
+        // リクエストパラメータ出力
+        Map<String, String[]> parameterMap = request.getParameterMap();
+        Set<String> set = parameterMap.keySet();
+        Iterator<String> iterator = set.iterator();
+        while (iterator.hasNext()) {
+            String parameterName = iterator.next();
+            String[] parameterValues = parameterMap.get(parameterName);
+            log.info(" Parameter  key=[{}]/value={}", parameterName, Arrays.toString(parameterValues));
+        }
+
+        // ボディ出力
+        try (BufferedReader bufferedReader = request.getReader(); Stream<String> stream = bufferedReader.lines();) {
+            String body = stream.collect(Collectors.joining(CRLF));
+            log.info(" Body=[{}]", body);
+        }
+    }
+
+    /**
+     * 
+     * @param response
+     * @param responseFileName
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     * @throws IOException
+     */
     private void setResponse(HttpServletResponse response, String responseFileName)
             throws ParserConfigurationException, SAXException, IOException {
+        log.info("<------------------------ [出力情報]");
+
         Path responseFile = Paths.get(responseFileName);
         log.info("読み込みファイル=[{}]", responseFile.toAbsolutePath());
 
