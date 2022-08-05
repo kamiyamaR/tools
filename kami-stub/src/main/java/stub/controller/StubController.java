@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -67,8 +68,14 @@ public class StubController {
     }
 
     private void exec(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        printRequest(request);
 
         String responseFileName = DEFAULT_RESPONSE_FILE;
+
+        /*
+         * ココに処理を記載する.
+         */
+
         setResponse(response, responseFileName);
     }
 
@@ -127,47 +134,52 @@ public class StubController {
         Element responseElement = document.getDocumentElement();
 
         // ステータスコード
-        int status = 0;
         NodeList statusList = responseElement.getElementsByTagName(STATUS_TAG_NAME);
-        if (statusList.getLength() >= 1) {
+        if (Objects.nonNull(statusList) && statusList.getLength() >= 1) {
             Element statusElement = (Element) statusList.item(0);
             String statusText = statusElement.getTextContent();
-            status = Integer.parseInt(statusText);
-        } else {
-            status = HttpStatus.OK.value();
-        }
-        log.info("status=[{}]", status);
-        response.setStatus(status);
+            int status = Integer.parseInt(statusText);
+            log.info("status=[{}]", status);
+            response.setStatus(status);
 
+        } else {
+            log.info("ステータスコードの設定なし。 [200 OK]を設定。");
+            response.setStatus(HttpStatus.OK.value());
+
+        }
         // ヘッダー
         NodeList headerList = responseElement.getElementsByTagName(HEADER_TAG_NAME);
-        for (int idx = 0; idx < headerList.getLength(); idx++) {
-            Element headerElement = (Element) headerList.item(idx);
+        if (Objects.nonNull(headerList)) {
+            for (int idx = 0; idx < headerList.getLength(); idx++) {
+                Element headerElement = (Element) headerList.item(idx);
 
-            NodeList nameList = headerElement.getElementsByTagName(HEADER_NAME_TAG_NAME);
-            NodeList valueList = headerElement.getElementsByTagName(HEADER_VALUE_TAG_NAME);
-            if (nameList.getLength() == 0 || valueList.getLength() == 0) {
-                // name要素もしくはvalue要素が存在しない場合はスキップ.
-                continue;
+                NodeList nameList = headerElement.getElementsByTagName(HEADER_NAME_TAG_NAME);
+                NodeList valueList = headerElement.getElementsByTagName(HEADER_VALUE_TAG_NAME);
+                if (nameList.getLength() == 0 || valueList.getLength() == 0) {
+                    // name要素もしくはvalue要素が存在しない場合はスキップ.
+                    continue;
+                }
+
+                Element nameElement = (Element) nameList.item(0);
+                Element valueElement = (Element) valueList.item(0);
+                String name = nameElement.getTextContent();
+                String value = valueElement.getTextContent();
+
+                if (CONTENT_TYPE_LOWER.equals(name.toLowerCase())) {
+                    response.setContentType(value);
+                } else {
+                    response.setHeader(name, value);
+                }
+
+                log.info(" Header key=[{}]/value=[{}]", name, value);
             }
-
-            Element nameElement = (Element) nameList.item(0);
-            Element valueElement = (Element) valueList.item(0);
-            String name = nameElement.getTextContent();
-            String value = valueElement.getTextContent();
-
-            if (CONTENT_TYPE_LOWER.equals(name.toLowerCase())) {
-                response.setContentType(value);
-            } else {
-                response.setHeader(name, value);
-            }
-
-            log.info(" Header key=[{}]/value=[{}]", name, value);
+        } else {
+            log.info("ヘッダーの設定なし。");
         }
 
         // ボディ
         NodeList bodyList = responseElement.getElementsByTagName(BODY_TAG_NAME);
-        if (bodyList.getLength() >= 1) {
+        if (Objects.nonNull(bodyList) && bodyList.getLength() >= 1) {
             Element bodyElement = (Element) bodyList.item(0);
             String body = bodyElement.getTextContent();
             log.info("body=[{}]", body);
@@ -177,6 +189,8 @@ public class StubController {
                 bufferedWriter.write(body);
                 bufferedWriter.flush();
             }
+        } else {
+            log.info("ボディの設定なし。");
         }
     }
 }

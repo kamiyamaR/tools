@@ -98,23 +98,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- AssertJ DB Assertions For Database -->
-        <!-- https://mvnrepository.com/artifact/org.assertj/assertj-db -->
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-db</artifactId>
-            <version>2.0.2</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- DbSetup -->
-        <!-- https://mvnrepository.com/artifact/com.ninja-squad/DbSetup -->
-        <dependency>
-            <groupId>com.ninja-squad</groupId>
-            <artifactId>DbSetup</artifactId>
-            <version>2.1.0</version>
-            <scope>test</scope>
-        </dependency>
 
     </dependencies>
 
