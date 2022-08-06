@@ -1,10 +1,10 @@
 package tool;
 
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,7 +23,7 @@ public class Main {
      */
     public static void main(String[] args) {
         try {
-            createSpringApplication().run(args);
+            createApplicationContext(args);
         } catch (Exception e) {
             log.error("例外発生.", e);
         }
@@ -31,9 +31,10 @@ public class Main {
 
     /**
      * 
+     * @param args
      * @return
      */
-    private static SpringApplication createSpringApplication() {
-        return new SpringApplicationBuilder(Main.class).web(WebApplicationType.SERVLET).build();
+    private static ConfigurableApplicationContext createApplicationContext(String[] args) {
+        return new SpringApplicationBuilder(Main.class).web(WebApplicationType.SERVLET).build().run(args);
     }
 }
