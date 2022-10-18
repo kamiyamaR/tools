@@ -7,10 +7,19 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * 
+ * @author agech
+ *
+ */
 @Slf4j
 @SpringBootApplication
 public class StubStart {
 
+    /**
+     * 
+     * @param args
+     */
     public static void main(String[] args) {
         try {
             log.info("スタブ起動開始.");
@@ -21,6 +30,11 @@ public class StubStart {
         }
     }
 
+    /**
+     * 
+     * @param args
+     * @return
+     */
     private static ConfigurableApplicationContext createApplicationContext(String[] args) {
         SpringApplicationBuilder builder = new SpringApplicationBuilder(StubStart.class);
         SpringApplication application = builder.build();

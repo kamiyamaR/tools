@@ -9,7 +9,9 @@
         <name>Accept-CH</name>
         <value>Sec-CH-UA, Sec-CH-UA-Mobile, Sec-CH-UA-Model, Sec-CH-UA-Platform, Sec-CH-UA-Platform-Version, Sec-CH-UA-Full-Version-List</value>
     </header>
-    <body><![CDATA[{
+    <body>
+<![CDATA[
+{
     "quotes": [
         {
             "high": "111.18",
@@ -36,5 +38,7 @@
             "low": "140.05"
         }
     ]
-}]]></body>
+}
+]]>
+    </body>
 </response>
