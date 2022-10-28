@@ -5,47 +5,37 @@ import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
-import tool.common.aop.ApiEntry;
 import tool.common.constant.Constant;
 import tool.common.db.mysql.dto.MysqlDbUserAgentInfDto;
 import tool.common.db.postgresql.dto.PostgresqlDbUserAgentInfDto;
 import tool.common.exception.OnlineBLogicException;
 
-/**
- * 
- * @author kamiyama ryohei
- *
- */
 @Slf4j
-@RestController
-public class CollectUserAgent {
+@Service
+public class CollectUserAgentService {
 
+    /** . */
     @Autowired
     private CollectUserAgentDbAccessFunction collectUserAgentDbAccessFunction;
 
     /**
-     * 
+     * .<br>
      * @param userAgent
+     * @param secChUa
+     * @param secChUaMobile
+     * @param secChUaModel
+     * @param secChUaPlatform
+     * @param secChUaPlatformVersion
      * @return
      */
-    @ApiEntry
-    @RequestMapping(path = "/api001", produces = { MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity<CollectUserAgentResponseBody> exec(
-            @RequestHeader(name = HttpHeaders.USER_AGENT, required = true) String userAgent,
-            @RequestHeader(name = Constant.SEC_CH_UA, required = false) String secChUa,
-            @RequestHeader(name = Constant.SEC_CH_UA_MOBILE, required = false) String secChUaMobile,
-            @RequestHeader(name = Constant.SEC_CH_UA_MODEL, required = false) String secChUaModel,
-            @RequestHeader(name = Constant.SEC_CH_UA_PLATFORM, required = false) String secChUaPlatform,
-            @RequestHeader(name = Constant.SEC_CH_UA_PLATFORM_VERSION, required = false) String secChUaPlatformVersion) {
+    public ResponseEntity<CollectUserAgentResponseBody> exec(String userAgent, String secChUa, String secChUaMobile,
+            String secChUaModel, String secChUaPlatform, String secChUaPlatformVersion) {
 
         if (Objects.isNull(secChUa) || Objects.isNull(secChUaMobile) || Objects.isNull(secChUaModel)
                 || Objects.isNull(secChUaPlatform) || Objects.isNull(secChUaPlatformVersion)) {

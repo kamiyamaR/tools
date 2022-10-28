@@ -21,10 +21,10 @@ import test.base.BaseUT;
  */
 @Slf4j
 @SpringBootTest(classes = { CollectUserAgentTestConfiguration.class })
-class CollectUserAgentTest extends BaseUT {
+class CollectUserAgentControllerTest extends BaseUT {
 
     @Autowired
-    private CollectUserAgent target;
+    private CollectUserAgentController target;
 
     @MockBean
     private CollectUserAgentDbAccessFunction collectUserAgentDbAccessFunction;
