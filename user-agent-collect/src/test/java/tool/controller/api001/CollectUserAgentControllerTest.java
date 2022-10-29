@@ -11,7 +11,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import lombok.extern.slf4j.Slf4j;
 import test.base.BaseUT;
 
 /**
@@ -19,7 +18,6 @@ import test.base.BaseUT;
  * @author kamiyama ryohei
  *
  */
-@Slf4j
 @SpringBootTest(classes = { CollectUserAgentTestConfiguration.class })
 class CollectUserAgentControllerTest extends BaseUT {
 
