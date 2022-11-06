@@ -33,15 +33,16 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import lombok.extern.slf4j.Slf4j;
+import stub.common.online.AbstractService;
 
 /**
  * 
- * @author agech
+ * @author kamiyama ryohei
  *
  */
 @Slf4j
 @Service
-public class DefaultService {
+public class DefaultService extends AbstractService<String, Void> {
     private static final String CRLF = "\r\n";
 
     private static final String DEFAULT_FILE_NAME = "default";
@@ -55,24 +56,15 @@ public class DefaultService {
 
     private static final String CONTENT_TYPE_LOWER = HttpHeaders.CONTENT_TYPE.toLowerCase();
 
-    /**
-     * 
-     */
-    public void execute() {
-        execute(DEFAULT_FILE_NAME);
-    }
-
-    /**
-     * 
-     * @param fileName
-     */
-    public void execute(String fileName) {
-        log.info("開始.");
+    @Override
+    public Void process(String fileName) {
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder
                 .getRequestAttributes();
         HttpServletRequest request = requestAttributes.getRequest();
         HttpServletResponse response = requestAttributes.getResponse();
-        String responseFileName = Paths.get(fileName + EXTENSION).getFileName().toString();
+
+        String tmp = Objects.nonNull(fileName) ? fileName : DEFAULT_FILE_NAME;
+        String responseFileName = Paths.get(tmp + EXTENSION).getFileName().toString();
 
         try {
             printRequest(request);
@@ -87,7 +79,7 @@ public class DefaultService {
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
 
-        log.info("終了.");
+        return null;
     }
 
     /**
@@ -209,4 +201,5 @@ public class DefaultService {
             log.info("ボディの設定なし。");
         }
     }
+
 }
