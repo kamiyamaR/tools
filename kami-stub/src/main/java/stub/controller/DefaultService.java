@@ -29,6 +29,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -49,6 +50,7 @@ public class DefaultService extends AbstractService<String, Void> {
     private static final String EXTENSION = ".txt";
 
     private static final String STATUS_TAG_NAME = "status";
+    private static final String HEADERS_TAG_NAME = "headers";
     private static final String HEADER_TAG_NAME = "header";
     private static final String HEADER_NAME_TAG_NAME = "name";
     private static final String HEADER_VALUE_TAG_NAME = "value";
@@ -63,20 +65,20 @@ public class DefaultService extends AbstractService<String, Void> {
         HttpServletRequest request = requestAttributes.getRequest();
         HttpServletResponse response = requestAttributes.getResponse();
 
-        String tmp = Objects.nonNull(fileName) ? fileName : DEFAULT_FILE_NAME;
-        String responseFileName = Paths.get(tmp + EXTENSION).getFileName().toString();
+        String responseFileName = Paths.get((Objects.nonNull(fileName) ? fileName : DEFAULT_FILE_NAME) + EXTENSION)
+                .getFileName().toString();
 
         try {
             printRequest(request);
-
-            /*
-             * ココに処理を記載する.
-             */
-
             setResponse(response, responseFileName);
         } catch (Exception e) {
             log.error("例外発生！", e);
-            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            try {
+                response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            } catch (Exception e1) {
+                log.error("例外発生！！", e1);
+                response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            }
         }
 
         return null;
@@ -144,42 +146,48 @@ public class DefaultService extends AbstractService<String, Void> {
         // ステータスコード
         NodeList statusList = responseElement.getElementsByTagName(STATUS_TAG_NAME);
         if (Objects.nonNull(statusList) && statusList.getLength() >= 1) {
-            Element statusElement = (Element) statusList.item(0);
-            String statusText = statusElement.getTextContent();
+            Node statusNode = statusList.item(0);
+            String statusText = statusNode.getTextContent();
             int status = Integer.parseInt(statusText);
             log.info("status=[{}]", status);
             response.setStatus(status);
-
         } else {
             log.info("ステータスコードの設定なし。 [200 OK]を設定。");
             response.setStatus(HttpStatus.OK.value());
-
         }
+
         // ヘッダー
-        NodeList headerList = responseElement.getElementsByTagName(HEADER_TAG_NAME);
-        if (Objects.nonNull(headerList)) {
-            for (int idx = 0; idx < headerList.getLength(); idx++) {
-                Element headerElement = (Element) headerList.item(idx);
+        NodeList headersList = responseElement.getElementsByTagName(HEADERS_TAG_NAME);
+        if (Objects.nonNull(headersList) && headersList.getLength() >= 1) {
+            Element headersElement = (Element) headersList.item(0);
+            NodeList headerList = headersElement.getElementsByTagName(HEADER_TAG_NAME);
+            if (Objects.nonNull(headerList)) {
+                for (int idx = 0; idx < headerList.getLength(); idx++) {
+                    Element headerElement = (Element) headerList.item(idx);
 
-                NodeList nameList = headerElement.getElementsByTagName(HEADER_NAME_TAG_NAME);
-                NodeList valueList = headerElement.getElementsByTagName(HEADER_VALUE_TAG_NAME);
-                if (nameList.getLength() == 0 || valueList.getLength() == 0) {
-                    // name要素もしくはvalue要素が存在しない場合はスキップ.
-                    continue;
+                    NodeList nameList = headerElement.getElementsByTagName(HEADER_NAME_TAG_NAME);
+                    NodeList valueList = headerElement.getElementsByTagName(HEADER_VALUE_TAG_NAME);
+                    if ((Objects.isNull(nameList) || nameList.getLength() <= 0)
+                            || (Objects.isNull(valueList) || valueList.getLength() <= 0)) {
+                        // name要素もしくはvalue要素が存在しない場合はスキップ.
+                        continue;
+                    }
+
+                    Node nameNode = nameList.item(0);
+                    Node valueNode = valueList.item(0);
+                    String name = nameNode.getTextContent();
+                    String value = valueNode.getTextContent();
+
+                    if (CONTENT_TYPE_LOWER.equals(name.toLowerCase())) {
+                        response.setContentType(value);
+                    } else {
+                        response.setHeader(name, value);
+                    }
+
+                    log.info(" Header key=[{}]/value=[{}]", name, value);
                 }
-
-                Element nameElement = (Element) nameList.item(0);
-                Element valueElement = (Element) valueList.item(0);
-                String name = nameElement.getTextContent();
-                String value = valueElement.getTextContent();
-
-                if (CONTENT_TYPE_LOWER.equals(name.toLowerCase())) {
-                    response.setContentType(value);
-                } else {
-                    response.setHeader(name, value);
-                }
-
-                log.info(" Header key=[{}]/value=[{}]", name, value);
+            } else {
+                log.info("ヘッダーの設定なし。");
             }
         } else {
             log.info("ヘッダーの設定なし。");
@@ -188,8 +196,8 @@ public class DefaultService extends AbstractService<String, Void> {
         // ボディ
         NodeList bodyList = responseElement.getElementsByTagName(BODY_TAG_NAME);
         if (Objects.nonNull(bodyList) && bodyList.getLength() >= 1) {
-            Element bodyElement = (Element) bodyList.item(0);
-            String body = bodyElement.getTextContent();
+            Node bodyNode = bodyList.item(0);
+            String body = bodyNode.getTextContent();
             log.info("body=[{}]", body);
 
             try (BufferedWriter bufferedWriter = new BufferedWriter(
