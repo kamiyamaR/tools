@@ -1,22 +1,13 @@
 package stub.common.exception.handler;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.ResponseEntity.BodyBuilder;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import lombok.extern.slf4j.Slf4j;
 import stub.common.exception.OnlineServiceException;
@@ -28,7 +19,7 @@ import stub.common.exception.OnlineServiceException;
  */
 @Slf4j
 @RestControllerAdvice
-public class OnlineExceptionHandler {
+public class OnlineExceptionHandler extends ResponseEntityExceptionHandler {
 
     /**
      * 
@@ -36,36 +27,38 @@ public class OnlineExceptionHandler {
      * @return
      */
     @ExceptionHandler(value = { OnlineServiceException.class })
-    public ResponseEntity<Object> handleOnlineServiceException(OnlineServiceException ex) {
+    public ResponseEntity<Object> handleOnlineServiceException(OnlineServiceException ex, WebRequest request) {
         log.error("", ex);
 
-        BodyBuilder builder = ResponseEntity.status(ex.getStatusCode());
-
-        if (Objects.nonNull(ex.getResponseHeaders())) {
-            HttpHeaders headers = new HttpHeaders(ex.getResponseHeaders());
-            builder.headers(headers);
+        Iterator<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasNext()) {
+            String headerName = headerNames.next();
+            String[] headerValues = request.getHeaderValues(headerName);
+            log.info(" {}:{}", headerName, headerValues);
         }
 
-        if (Objects.nonNull(ex.getResponseBody())) {
-            return builder.body(ex.getResponseBody());
-        } else {
-            return builder.build();
+        for (Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
+            log.info(" {}:{}", entry.getKey(), entry.getValue());
         }
+
+        return new ResponseEntity<Object>(ex.getResponseBody(), ex.getResponseHeaders(), ex.getStatusCode());
     }
 
     /**
      * ステータスコード 400.<br>
-     * {@link BindException}でapplication/x-www-form-urlencodedのパラメータがパースできなかった場合などに発生.<br>
+     * {@link RequestParam}でapplication/x-www-form-urlencodedのパラメータがパースできなかった場合などに発生.<br>
      * 
      * @param ex
      * @return
      */
+    /*
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = { BindException.class })
     public Map<String, Object> handleBindException(BindException ex) {
         log.error("", ex);
         return new HashMap<String, Object>();
     }
+    */
 
     /**
      * ステータスコード 400.<br>
@@ -77,17 +70,19 @@ public class OnlineExceptionHandler {
      * @param ex
      * @return
      */
+    /*
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = { HttpMessageNotReadableException.class })
     public Map<String, Object> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         log.error("", ex);
         return new HashMap<String, Object>();
     }
+    */
 
     /**
      * ステータスコード 400.<br>
      * {@link PathVariable}でURLパスパラメータがパースできなかった、<br>
-     * もしくは、{@link RequestParam}でクエリパラメータがパースできなかった場合などに発生.<br>55555
+     * もしくは、{@link RequestParam}でクエリパラメータがパースできなかった場合などに発生.<br>
      * パースで失敗する例<br>
      * ・int型の項目にString型の値が設定された.<br>
      * ・int型の項目に「2147483648」が設定された.<br>
@@ -95,17 +90,18 @@ public class OnlineExceptionHandler {
      * @param ex
      * @return
      */
+    /*
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = { MethodArgumentTypeMismatchException.class })
     public Map<String, Object> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
         log.error("", ex);
         return new HashMap<String, Object>();
     }
+    */
 
     /**
      * ステータスコード 400.<br>
-     * GETで必須になっているクエリパラメータが指定されていない場合.<br>
-     * 
+     * 必須になっているクエリパラメータの指定が無かった場合.<br>
      * @param ex
      * @return
      */
@@ -195,4 +191,5 @@ public class OnlineExceptionHandler {
         return ResponseEntity.internalServerError().build();
     }
     */
+
 }

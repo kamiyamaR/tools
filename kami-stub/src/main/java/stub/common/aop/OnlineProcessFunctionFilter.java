@@ -30,9 +30,8 @@ public class OnlineProcessFunctionFilter {
      */
     @Around(value = "@annotation(onlineProcessEntry)")
     public Object intercept(ProceedingJoinPoint point, OnlineProcessEntry onlineProcessEntry) throws Throwable {
-        String classPath = point.getTarget().getClass().getName();
-        String methodName = point.getSignature().getName();
-        String target = new StringBuilder().append(classPath).append('.').append(methodName).toString();
+        String target = new StringBuilder().append(point.getTarget().getClass().getName()).append('.')
+                .append(point.getSignature().getName()).toString();
         Stopwatch stopwatch = new Stopwatch().start();
         try {
             log.info("------ {} ------- START.", target);
