@@ -34,7 +34,7 @@ public class ExceptionHandlerFilter {
         } catch (OnlineServiceException e) {
             throw e;
         } catch (Exception e) {
-            throw new OnlineServiceException(e, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new OnlineServiceException(e, HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
 

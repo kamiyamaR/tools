@@ -25,7 +25,7 @@ public class SleepService extends AbstractService<String, ResponseEntity<Object>
         try {
             TimeUnit.MILLISECONDS.sleep(timeout);
         } catch (InterruptedException e) {
-            throw new OnlineServiceException(e, HttpStatus.BAD_REQUEST);
+            throw new OnlineServiceException(e, HttpStatus.BAD_REQUEST.value());
         }
 
         return ResponseEntity.ok().build();

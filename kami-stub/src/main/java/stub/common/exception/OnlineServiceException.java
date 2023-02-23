@@ -1,6 +1,5 @@
 package stub.common.exception;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.util.MultiValueMap;
 
 import lombok.Getter;
@@ -13,7 +12,7 @@ import lombok.Getter;
 @Getter
 public class OnlineServiceException extends RuntimeException {
     /** . */
-    private final HttpStatus statusCode;
+    private final int statusCode;
     /** . */
     private MultiValueMap<String, String> responseHeaders;
     /** . */
@@ -23,7 +22,7 @@ public class OnlineServiceException extends RuntimeException {
      * 
      * @param statusCode
      */
-    public OnlineServiceException(final HttpStatus statusCode) {
+    public OnlineServiceException(final int statusCode) {
         this(statusCode, null, null);
     }
 
@@ -32,7 +31,7 @@ public class OnlineServiceException extends RuntimeException {
      * @param statusCode
      * @param responseHeaders
      */
-    public OnlineServiceException(final HttpStatus statusCode, MultiValueMap<String, String> responseHeaders) {
+    public OnlineServiceException(final int statusCode, MultiValueMap<String, String> responseHeaders) {
         this(statusCode, responseHeaders, null);
     }
 
@@ -41,7 +40,7 @@ public class OnlineServiceException extends RuntimeException {
      * @param statusCode
      * @param responseBody
      */
-    public OnlineServiceException(final HttpStatus statusCode, Object responseBody) {
+    public OnlineServiceException(final int statusCode, Object responseBody) {
         this(statusCode, null, responseBody);
     }
 
@@ -51,7 +50,7 @@ public class OnlineServiceException extends RuntimeException {
      * @param responseHeaders
      * @param responseBody
      */
-    public OnlineServiceException(final HttpStatus statusCode, MultiValueMap<String, String> responseHeaders,
+    public OnlineServiceException(final int statusCode, MultiValueMap<String, String> responseHeaders,
             Object responseBody) {
         super();
         this.statusCode = statusCode;
@@ -64,7 +63,7 @@ public class OnlineServiceException extends RuntimeException {
      * @param cause
      * @param statusCode
      */
-    public OnlineServiceException(Throwable cause, final HttpStatus statusCode) {
+    public OnlineServiceException(Throwable cause, final int statusCode) {
         this(cause, statusCode, null, null);
     }
 
@@ -74,7 +73,7 @@ public class OnlineServiceException extends RuntimeException {
      * @param statusCode
      * @param responseHeaders
      */
-    public OnlineServiceException(Throwable cause, final HttpStatus statusCode,
+    public OnlineServiceException(Throwable cause, final int statusCode,
             MultiValueMap<String, String> responseHeaders) {
         this(cause, statusCode, responseHeaders, null);
     }
@@ -85,7 +84,7 @@ public class OnlineServiceException extends RuntimeException {
      * @param statusCode
      * @param responseBody
      */
-    public OnlineServiceException(Throwable cause, final HttpStatus statusCode, Object responseBody) {
+    public OnlineServiceException(Throwable cause, final int statusCode, Object responseBody) {
         this(cause, statusCode, null, responseBody);
     }
 
@@ -96,8 +95,8 @@ public class OnlineServiceException extends RuntimeException {
      * @param responseHeaders
      * @param responseBody
      */
-    public OnlineServiceException(Throwable cause, final HttpStatus statusCode,
-            MultiValueMap<String, String> responseHeaders, Object responseBody) {
+    public OnlineServiceException(Throwable cause, final int statusCode, MultiValueMap<String, String> responseHeaders,
+            Object responseBody) {
         super(cause);
         this.statusCode = statusCode;
         this.responseHeaders = responseHeaders;
