@@ -1,0 +1,8 @@
+/.settings/
+/target/
+/.classpath
+/.project
+/*.txt
+!/default.txt
+/stub.log*
+/tomcat_access.log*
