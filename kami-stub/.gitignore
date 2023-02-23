@@ -1,7 +1,7 @@
-/.settings/
+/.*/
+/.*
+!/.gitignore
 /target/
-/.classpath
-/.project
 /*.txt
 !/default.txt
 /stub.log*
