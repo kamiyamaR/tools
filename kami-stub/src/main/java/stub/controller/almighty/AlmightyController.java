@@ -3,11 +3,11 @@ package stub.controller.almighty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,7 +31,7 @@ public class AlmightyController {
      * @param queryStr
      * @return
      */
-    @RequestMapping(path = { "/almighty/{almighty}/{almighty2}" }, method = { RequestMethod.GET })
+    @GetMapping(path = { "/almighty/{almighty}/{almighty2}" })
     public ResponseEntity<Void> doGet(@PathVariable(name = "almighty") String pathStr,
             @PathVariable(name = "almighty2") int pathInt, @RequestParam(name = "aaa") int queryInt,
             @RequestParam(name = "bbb") String queryStr) {
@@ -52,7 +52,7 @@ public class AlmightyController {
      * @param form
      * @return
      */
-    @RequestMapping(path = { "/almighty/{almighty}/{almighty2}" }, method = { RequestMethod.POST }, consumes = {
+    @PostMapping(path = { "/almighty/{almighty}/{almighty2}" }, consumes = {
             MediaType.APPLICATION_FORM_URLENCODED_VALUE }, produces = { MediaType.APPLICATION_FORM_URLENCODED_VALUE })
     public ResponseEntity<Void> doPostFormUrlencoded(@PathVariable(name = "almighty") String pathStr,
             @PathVariable(name = "almighty2") int pathInt, @RequestParam(name = "aaa") int queryInt,
@@ -75,7 +75,7 @@ public class AlmightyController {
      * @param form
      * @return
      */
-    @RequestMapping(path = { "/almighty/{almighty}/{almighty2}" }, method = { RequestMethod.POST }, consumes = {
+    @PostMapping(path = { "/almighty/{almighty}/{almighty2}" }, consumes = {
             MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<Void> doPostJson(@PathVariable(name = "almighty") String pathStr,
             @PathVariable(name = "almighty2") int pathInt, @RequestParam(name = "aaa") int queryInt,

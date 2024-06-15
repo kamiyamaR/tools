@@ -1,4 +1,4 @@
-package stub.common.exception;
+package stub.common.online.exception;
 
 import org.springframework.util.MultiValueMap;
 
@@ -102,4 +102,5 @@ public class OnlineServiceException extends RuntimeException {
         this.responseHeaders = responseHeaders;
         this.responseBody = responseBody;
     }
+
 }

@@ -1,4 +1,4 @@
-package stub.common.aop;
+package stub.common.online.filter;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -7,7 +7,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import stub.common.aop.annotation.OnlineProcessEntry;
+import stub.common.online.filter.annotation.OnlineProcessEntry;
 import stub.common.tool.Stopwatch;
 
 /**
@@ -23,19 +23,19 @@ public class OnlineProcessFunctionFilter {
 
     /**
      * 
-     * @param point
+     * @param joinPoint
      * @param onlineProcessEntry
      * @return
      * @throws Throwable
      */
     @Around(value = "@annotation(onlineProcessEntry)")
-    public Object intercept(ProceedingJoinPoint point, OnlineProcessEntry onlineProcessEntry) throws Throwable {
-        String target = new StringBuilder().append(point.getTarget().getClass().getName()).append('.')
-                .append(point.getSignature().getName()).toString();
+    public Object intercept(ProceedingJoinPoint joinPoint, OnlineProcessEntry onlineProcessEntry) throws Throwable {
+        String target = new StringBuilder().append(joinPoint.getTarget().getClass().getName()).append('.')
+                .append(joinPoint.getSignature().getName()).toString();
         Stopwatch stopwatch = new Stopwatch().start();
         try {
             log.info("------ {} ------- START.", target);
-            Object result = point.proceed();
+            Object result = joinPoint.proceed();
             log.info("------ {} ------- END. [{}]", target, stopwatch);
             return result;
         } catch (Exception e) {

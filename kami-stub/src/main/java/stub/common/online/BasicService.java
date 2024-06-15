@@ -15,4 +15,5 @@ public interface BasicService<P, R> {
      * @return
      */
     public R execute(P param);
+
 }

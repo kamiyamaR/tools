@@ -14,24 +14,27 @@ import org.springframework.web.bind.annotation.RestController;
 public class DefaultController {
 
     /** . */
-    @Autowired
-    private DefaultService defaultService;
+    private final DefaultService defaultService;
+
+    public DefaultController(@Autowired DefaultService defaultService) {
+        this.defaultService = defaultService;
+    }
 
     /**
      * デフォルト.<br>
      * @param fileName
      */
-    @RequestMapping(path = { "/default/{name}" })
+    @RequestMapping(path = { "/default/{name}" }, method = {})
     public void defaultCall(@PathVariable(name = "name") String fileName) {
-        this.defaultService.execute(fileName);
+        defaultService.execute(fileName);
     }
 
     /**
      * デフォルト.<br>
      */
-    @RequestMapping(path = { "/default" })
+    @RequestMapping(path = { "/default" }, method = {})
     public void defaultCall() {
-        this.defaultService.execute(null);
+        defaultService.execute(null);
     }
 
 }

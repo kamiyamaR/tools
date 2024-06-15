@@ -13,4 +13,5 @@ public class AlmightyForm {
     private int intVal;
     /** . */
     private String strVal;
+
 }

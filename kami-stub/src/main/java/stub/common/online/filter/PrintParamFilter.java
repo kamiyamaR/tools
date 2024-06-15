@@ -1,4 +1,4 @@
-package stub.common.aop;
+package stub.common.online.filter;
 
 import java.util.Objects;
 
@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import stub.common.aop.annotation.OnlineProcessEntry;
+import stub.common.online.filter.annotation.OnlineProcessEntry;
 
 /**
  * 
@@ -27,19 +27,19 @@ public class PrintParamFilter {
 
     /**
      * 
-     * @param point
+     * @param joinPoint
      * @param onlineProcessEntry
      * @return
      * @throws Throwable
      */
     @Around(value = "@annotation(onlineProcessEntry)")
-    public Object intercept(ProceedingJoinPoint point, OnlineProcessEntry onlineProcessEntry) throws Throwable {
+    public Object intercept(ProceedingJoinPoint joinPoint, OnlineProcessEntry onlineProcessEntry) throws Throwable {
         if (log.isDebugEnabled()) {
             // リクエストパラメータ(実行メソッドの引数)出力.
             log.debug("[HttpRequestParameter(Method args)]");
-            CodeSignature codeSignature = (CodeSignature) point.getSignature();
+            CodeSignature codeSignature = (CodeSignature) joinPoint.getSignature();
             String[] parameterNames = codeSignature.getParameterNames();
-            Object[] args = point.getArgs();
+            Object[] args = joinPoint.getArgs();
             for (int idx = 0; idx < parameterNames.length; idx++) {
                 String parameterName = parameterNames[idx];
                 Object arg = args[idx];
@@ -52,7 +52,7 @@ public class PrintParamFilter {
         }
 
         // 対象メソッド実行
-        Object result = point.proceed();
+        Object result = joinPoint.proceed();
 
         if (log.isDebugEnabled()) {
             // レスポンス情報の出力.
@@ -60,7 +60,7 @@ public class PrintParamFilter {
                 if (result instanceof ResponseEntity) {
                     @SuppressWarnings(value = { "unchecked" })
                     ResponseEntity<Object> responseEntity = (ResponseEntity<Object>) result;
-                    log.debug("Status Code：{}", responseEntity.getStatusCodeValue());
+                    log.debug("Status Code：{}", responseEntity.getStatusCode().value());
                     Object body = responseEntity.getBody();
                     if (Objects.isNull(body)) {
                         log.debug("Response body is null.");

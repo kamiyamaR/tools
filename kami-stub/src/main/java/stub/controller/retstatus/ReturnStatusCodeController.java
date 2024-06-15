@@ -14,14 +14,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReturnStatusCodeController {
 
     /** . */
-    @Autowired
-    private ReturnStatusCodeService returnStatusCodeService;
+    private final ReturnStatusCodeService returnStatusCodeService;
+
+    public ReturnStatusCodeController(@Autowired ReturnStatusCodeService returnStatusCodeService) {
+        this.returnStatusCodeService = returnStatusCodeService;
+    }
 
     /**
      * 
      * @param statusCode
      */
-    @RequestMapping(path = { "/retStatus/{status}" })
+    @RequestMapping(path = { "/retStatus/{status}" }, method = {})
     public void returnStatusCodeCall(@PathVariable(name = "status") String statusCode) {
         this.returnStatusCodeService.execute(statusCode);
     }

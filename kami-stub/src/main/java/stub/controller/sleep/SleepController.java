@@ -15,15 +15,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class SleepController {
 
     /** . */
-    @Autowired
-    private SleepService sleepService;
+    private final SleepService sleepService;
+
+    public SleepController(@Autowired SleepService sleepService) {
+        this.sleepService = sleepService;
+    }
 
     /**
      * 
      * @param sleepTime
      * @return
      */
-    @RequestMapping(path = { "/sleep/{sleepTime}" })
+    @RequestMapping(path = { "/sleep/{sleepTime}" }, method = {})
     public ResponseEntity<Object> sleepCall(@PathVariable(name = "sleepTime") String sleepTime) {
         return this.sleepService.execute(sleepTime);
     }

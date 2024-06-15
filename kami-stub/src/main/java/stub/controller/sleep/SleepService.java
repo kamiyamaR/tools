@@ -6,8 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import stub.common.exception.OnlineServiceException;
 import stub.common.online.AbstractService;
+import stub.common.online.exception.OnlineServiceException;
 
 /**
  * 

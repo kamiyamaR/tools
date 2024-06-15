@@ -1,4 +1,4 @@
-package stub.common.exception.handler;
+package stub.common.online.exception.handler;
 
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -10,7 +10,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import lombok.extern.slf4j.Slf4j;
-import stub.common.exception.OnlineServiceException;
+import stub.common.online.exception.OnlineServiceException;
 
 /**
  * 

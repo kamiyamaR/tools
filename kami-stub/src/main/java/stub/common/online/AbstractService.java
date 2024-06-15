@@ -1,6 +1,6 @@
 package stub.common.online;
 
-import stub.common.aop.annotation.OnlineProcessEntry;
+import stub.common.online.filter.annotation.OnlineProcessEntry;
 
 /**
  * 
@@ -23,4 +23,5 @@ public abstract class AbstractService<P, R> implements BasicService<P, R> {
     public R execute(P param) {
         return process(param);
     }
+
 }

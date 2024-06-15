@@ -3,6 +3,7 @@ package stub;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @SpringBootApplication
+@ConfigurationPropertiesScan
 public class StubStart {
 
     /**
@@ -26,7 +28,7 @@ public class StubStart {
             createApplicationContext(args);
             log.info("スタブ起動完了.");
         } catch (Exception e) {
-            log.error("スタブ起動で例外発生！", e);
+            log.error("スタブ起動で例外発生！！", e);
         }
     }
 
@@ -40,4 +42,5 @@ public class StubStart {
         SpringApplication application = builder.build();
         return application.run(args);
     }
+
 }
