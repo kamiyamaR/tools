@@ -7,9 +7,7 @@ import lombok.Data;
 
 @Data
 public class ResponseInfo {
-    private String version;
     private int statusCode;
     private Map<String, List<String>> headers;
     private byte[] bodyByteArray;
-
 }

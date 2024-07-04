@@ -3,25 +3,27 @@ package stub.controller.repository.http.javanethttp;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
-import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpRequest.Builder;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Objects;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Component;
 
+import lombok.extern.slf4j.Slf4j;
 import stub.common.http.javanethttp.JavaNetHttpAccessorBase;
 import stub.controller.repository.http.RepositoryAccessor;
 import stub.controller.repository.http.RequestInfo;
 import stub.controller.repository.http.ResponseInfo;
 import stub.controller.repository.http.javanethttp.prop.RepositoryAccessorJavaNetHttpProperties;
 
+@Slf4j
 @Component
 public class RepositoryAccessorJavaNetHttp extends JavaNetHttpAccessorBase implements RepositoryAccessor {
 
@@ -37,42 +39,38 @@ public class RepositoryAccessorJavaNetHttp extends JavaNetHttpAccessorBase imple
     @Override
     public ResponseInfo execute(RequestInfo input) throws Exception {
 
-        BodyPublisher publisher = null;
-        if (ArrayUtils.isNotEmpty(input.getBodyByteArray())) {
-            publisher = BodyPublishers.ofByteArray(input.getBodyByteArray());
-        } else {
-            publisher = BodyPublishers.noBody();
-        }
-        HttpRequest.Builder requestBuilder = HttpRequest.newBuilder(URI.create(input.getUrl()));
-        requestBuilder.method(input.getMethod(), publisher);
+        Builder requestBuilder = HttpRequest.newBuilder() //
+                .uri(URI.create(input.getUrl())) // 接続先
+                .method(input.getMethod(), // リクエストメソッド
+                        ArrayUtils.isNotEmpty(input.getBodyByteArray()) // 
+                                ? BodyPublishers.ofByteArray(input.getBodyByteArray()) // リクエストボディ
+                                : BodyPublishers.noBody()) // 
+                .timeout(Duration.ofMillis(prop.getSocketTimeout())); // ソケットタイムアウト
 
-        for (Entry<String, List<String>> entry : input.getHeaders().entrySet()) {
-            // 設定出来ないヘッダーを除外する
-            switch (entry.getKey().toLowerCase()) {
-            case "host":
-            case "connection":
-                continue;
-            default:
-                break;
+        if (Objects.nonNull(input.getHeaders())) {
+            input.getHeaders().forEach((key, values) -> {
+                switch (key.toLowerCase()) {
+                case "host":
+                case "connection":
+                    break;
+                default:
+                    values.forEach(value -> requestBuilder.header(key, value));
+                }
+            });
+        }
+
+        HttpResponse<byte[]> response = send(requestBuilder.build(), BodyHandlers.ofByteArray());
+
+        Map<String, List<String>> responseHeaders = new HashMap<String, List<String>>();
+        response.headers().map().forEach((key, values) -> {
+            if (key.contains(":")) {
+                log.debug("除外します。key=[{}], values=[{}]", key, values); // 「:status」というヘッダがなんか悪さしてる。
+                return;
             }
-
-            for (String value : entry.getValue()) {
-                requestBuilder.header(entry.getKey(), value);
-            }
-        }
-
-        requestBuilder.timeout(Duration.ofMillis(prop.getSocketTimeout())); // ソケットタイムアウト
-        HttpRequest request = requestBuilder.build();
-
-        HttpResponse<byte[]> response = send(request, BodyHandlers.ofByteArray());
-
-        Map<String, List<String>> responseHeaders = new HashMap<>();
-        for (Entry<String, List<String>> entry : response.headers().map().entrySet()) {
-            responseHeaders.put(entry.getKey(), entry.getValue());
-        }
+            responseHeaders.put(key, values);
+        });
 
         ResponseInfo output = new ResponseInfo();
-        output.setVersion(response.version().name());
         output.setStatusCode(response.statusCode());
         output.setHeaders(responseHeaders);
         output.setBodyByteArray(response.body());

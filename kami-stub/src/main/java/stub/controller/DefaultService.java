@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -31,8 +32,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import jakarta.servlet.ServletConnection;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletMapping;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import stub.common.online.AbstractService;
 
@@ -89,11 +94,117 @@ public class DefaultService extends AbstractService<String, Void> {
      * @param request
      * @throws IOException
      */
-    private void printRequest(HttpServletRequest request) throws IOException {
+    private void printRequest(HttpServletRequest request) throws Exception {
         log.info("------------------------> [入力情報]");
-        log.info("from=[{}:{}]", request.getRemoteAddr(), request.getRemotePort());
-        log.info("URL=[{}]", request.getRequestURL().toString());
-        log.info("Method=[{}]", request.getMethod());
+
+        // サーブレットコンテキスト情報
+        String contentType = request.getContentType();
+        //log.info(" changeSessionId=[{}]", request.changeSessionId()); // 例外が起きる
+        if (request.isAsyncStarted()) {
+            log.info(" AsyncContext=[{}]", request.getAsyncContext());
+        }
+        {
+            Enumeration<String> attributeNames = request.getAttributeNames();
+            while (attributeNames.hasMoreElements()) {
+                String attributeName = attributeNames.nextElement();
+                log.info(" Attribute Names=[{}]/value=[{}]", attributeName, request.getAttribute(attributeName));
+            }
+        }
+        log.info(" AuthType=[{}]", request.getAuthType());
+        log.info(" CharacterEncoding=[{}]", request.getCharacterEncoding());
+        log.info(" Class=[{}]", request.getClass());
+        log.info(" ContentLength=[{}]", request.getContentLength());
+        log.info(" ContentLengthLong=[{}]", request.getContentLengthLong());
+        log.info(" ContentType=[{}]", contentType);
+        log.info(" ContextPath=[{}]", request.getContextPath());
+        log.info(" Cookies=[{}]", Arrays.toString(request.getCookies()));
+        log.info(" DispatcherType=[{}]", request.getDispatcherType());
+        {
+            HttpServletMapping mapping = request.getHttpServletMapping();
+            log.info(" HttpServletMapping=[{}]", mapping);
+            log.info(" HttpServletMapping.Class=[{}]", mapping.getClass());
+            log.info(" HttpServletMapping.MappingMatch=[{}]", mapping.getMappingMatch());
+            log.info(" HttpServletMapping.MatchValue=[{}]", mapping.getMatchValue());
+            log.info(" HttpServletMapping.Pattern=[{}]", mapping.getPattern());
+            log.info(" HttpServletMapping.ServletName=[{}]", mapping.getServletName());
+        }
+        log.info(" LocalAddr=[{}]", request.getLocalAddr());
+        log.info(" Locale=[{}]", request.getLocale());
+        {
+            Enumeration<Locale> locales = request.getLocales();
+            log.info(" Locale=[{}]", locales);
+            while (locales.hasMoreElements()) {
+                Locale locale = locales.nextElement();
+                log.info(" Locales=[{}]", locale);
+            }
+        }
+        log.info(" LocalName=[{}]", request.getLocalName());
+        log.info(" LocalPort=[{}]", request.getLocalPort());
+        if (Objects.nonNull(contentType) && contentType.toLowerCase().startsWith("multipart/")) {
+            log.info(" Parts=[{}]", request.getParts());
+        }
+        log.info(" Method=[{}]", request.getMethod());
+        log.info(" PathInfo=[{}]", request.getPathInfo());
+        log.info(" PathTranslated=[{}]", request.getPathTranslated());
+        log.info(" ProtocolRequestId=[{}]", request.getProtocolRequestId());
+        log.info(" QueryString=[{}]", request.getQueryString());
+        log.info(" RemoteAddr=[{}]", request.getRemoteAddr());
+        log.info(" RemoteHost=[{}]", request.getRemoteHost());
+        log.info(" RemotePort=[{}]", request.getRemotePort());
+        log.info(" RemoteUser=[{}]", request.getRemoteUser());
+        log.info(" RequestedSessionId=[{}]", request.getRequestedSessionId());
+        log.info(" RequestId=[{}]", request.getRequestId());
+        log.info(" RequestURI=[{}]", request.getRequestURI());
+        log.info(" RequestURL=[{}]", request.getRequestURL());
+        log.info(" Scheme=[{}]", request.getScheme());
+        log.info(" ServerName=[{}]", request.getServerName());
+        log.info(" ServerPort=[{}]", request.getServerPort());
+        {
+            ServletConnection connection = request.getServletConnection();
+            log.info(" ServletConnection=[{}]", connection);
+            log.info(" ServletConnection.Class=[{}]", connection.getClass());
+            log.info(" ServletConnection.ConnectionId=[{}]", connection.getConnectionId());
+            log.info(" ServletConnection.Protocol=[{}]", connection.getProtocol());
+            log.info(" ServletConnection.ProtocolConnectionId=[{}]", connection.getProtocolConnectionId());
+            log.info(" ServletConnection.isSecure=[{}]", connection.isSecure());
+        }
+        {
+            ServletContext context = request.getServletContext();
+            log.info(" ServletContext=[{}]", context);
+            log.info(" ServletContext.Class=[{}]", context.getClass());
+            Enumeration<String> attributeNames = context.getAttributeNames();
+            while (attributeNames.hasMoreElements()) {
+                String name = attributeNames.nextElement();
+                log.info(" ServletContext.Attribute Names=[{}]/value=[{}]=[{}]", name, context.getAttribute(name));
+
+            }
+        }
+        {
+            HttpSession session = request.getSession();
+            log.info(" Session=[{}]", session);
+            log.info(" Session.Class=[{}]", session.getClass());
+            Enumeration<String> attributeNames = session.getAttributeNames();
+            while (attributeNames.hasMoreElements()) {
+                String name = attributeNames.nextElement();
+                log.info(" Session.Attribute Names=[{}]/value=[{}]=[{}]", name, session.getAttribute(name));
+            }
+            log.info(" Session.CreationTime=[{}]", session.getCreationTime());
+            log.info(" Session.Id=[{}]", session.getId());
+            log.info(" Session.LastAccessedTime=[{}]", session.getLastAccessedTime());
+            log.info(" Session.MaxInactiveInterval=[{}]", session.getMaxInactiveInterval());
+            {
+                ServletContext context = session.getServletContext();
+                Enumeration<String> contextAttributeNames = context.getAttributeNames();
+                while (contextAttributeNames.hasMoreElements()) {
+                    String name = contextAttributeNames.nextElement();
+                    log.info(" Session.ServletContext.Attribute Names=[{}]/value=[{}]=[{}]", name,
+                            context.getAttribute(name));
+                }
+            }
+            log.info(" Session.ServletContext=[{}]", session.getServletContext());
+        }
+        log.info(" TrailerFields=[{}]", request.getTrailerFields());
+        log.info(" UserPrincipal=[{}]", request.getUserPrincipal());
 
         // リクエストヘッダ出力
         Enumeration<String> headerNames = request.getHeaderNames();

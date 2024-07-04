@@ -98,7 +98,6 @@ public class RepositoryAccessorApacheHttpClient5 implements RepositoryAccessor {
 
                 ResponseInfo responseInfo = new ResponseInfo();
                 responseInfo.setStatusCode(response.getCode());
-                responseInfo.setVersion(response.getVersion().toString());
                 responseInfo.setHeaders(headers);
                 if (Objects.nonNull(entity)) {
                     byte[] bodyByteArray = EntityUtils.toByteArray(entity);
