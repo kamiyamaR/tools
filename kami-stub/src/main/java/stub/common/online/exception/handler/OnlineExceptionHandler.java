@@ -1,7 +1,6 @@
 package stub.common.online.exception.handler;
 
-import java.util.Iterator;
-import java.util.Map.Entry;
+import java.util.Arrays;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -30,16 +29,11 @@ public class OnlineExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleOnlineServiceException(OnlineServiceException ex, WebRequest request) {
         log.error("", ex);
 
-        Iterator<String> headerNames = request.getHeaderNames();
-        while (headerNames.hasNext()) {
-            String headerName = headerNames.next();
-            String[] headerValues = request.getHeaderValues(headerName);
-            log.info(" {}:{}", headerName, headerValues);
-        }
+        request.getHeaderNames().forEachRemaining(
+                headerName -> log.info(" {}:{}", headerName, Arrays.toString(request.getHeaderValues(headerName))));
 
-        for (Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
-            log.info(" {}:{}", entry.getKey(), entry.getValue());
-        }
+        request.getParameterMap()
+                .forEach((paramName, paramValues) -> log.info(" {}:{}", paramName, Arrays.toString(paramValues)));
 
         return new ResponseEntity<Object>(ex.getResponseBody(), ex.getResponseHeaders(), ex.getStatusCode());
     }
