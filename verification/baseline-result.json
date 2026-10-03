@@ -1,0 +1,26 @@
+{
+  "RuntimeDependenciesCompared": 58,
+  "Evidence": "Local final reproduction recorded on 2026-10-03; summary before committing migration changes",
+  "CheckedAt": "2026-10-03",
+  "Failures": 0,
+  "SourceFilesCompared": 106,
+  "Skipped": 0,
+  "ApplicationProcessesStopped": true,
+  "WindowsWrapperPathWorkaround": "Use a short WrapperCache path",
+  "SeparateMachine": false,
+  "HttpChecks": 19,
+  "Result": true,
+  "FreshDependencyCache": true,
+  "CleanupSucceeded": true,
+  "IndependentWorkingCopy": true,
+  "Tests": 57,
+  "FreshMavenDistributionCache": true,
+  "Errors": 0,
+  "Environment": {
+    "MySQL": "8.4.11",
+    "Java": "Corretto 21.0.12.12.1",
+    "PostgreSQL": "18.6",
+    "Maven": "3.9.6"
+  },
+  "FreshDbVolumes": false
+}

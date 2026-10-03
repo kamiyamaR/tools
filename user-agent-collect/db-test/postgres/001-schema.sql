@@ -1,0 +1,5 @@
+CREATE TABLE user_agent_inf (
+    sequence_num INTEGER NOT NULL PRIMARY KEY,
+    user_agent TEXT NOT NULL
+);
+CREATE SEQUENCE sequence_num_create AS INTEGER START WITH 1 INCREMENT BY 1 NO CYCLE;

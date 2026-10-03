@@ -6,8 +6,9 @@ import java.util.List;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.lang.Nullable;
+import org.springframework.http.converter.HttpMessageConverters;
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
+import org.jspecify.annotations.Nullable;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -32,14 +33,15 @@ public class WebMvcConfigurerEx implements WebMvcConfigurer {
     }
 
     @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+    public void configureMessageConverters(HttpMessageConverters.ServerBuilder builder) {
         log.info("WebMvcConfig::configureMessageConverters() call.");
-        converters.forEach(converter -> log.info("  converter=[{}], class=[{}]", converter, converter.getClass()));
+        builder.configureMessageConverters(
+                converter -> log.info("  converter=[{}], class=[{}]", converter, converter.getClass()));
     }
 
-    public static class MappingJackson2HttpMessageConverterEx extends MappingJackson2HttpMessageConverter {
+    public static class JacksonJsonHttpMessageConverterEx extends JacksonJsonHttpMessageConverter {
 
-        public MappingJackson2HttpMessageConverterEx() {
+        public JacksonJsonHttpMessageConverterEx() {
             super();
         }
 

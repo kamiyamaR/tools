@@ -1,8 +1,10 @@
 package tool.common.exception.handler;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -20,6 +22,11 @@ public class OnlineExceptionHandler {
     @Autowired
     private MessageLogger messageLogger;
 
+    @ExceptionHandler(value = MissingRequestHeaderException.class)
+    public ResponseEntity<Void> handleMissingRequestHeader(MissingRequestHeaderException ex) {
+        return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+    }
+
     /**
      * 
      * @param ex
@@ -28,7 +35,8 @@ public class OnlineExceptionHandler {
     @ExceptionHandler(value = OnlineBLogicException.class)
     public ResponseEntity<Object> handleException(OnlineBLogicException ex) {
         this.messageLogger.log(ex.getMessageId(), ex.getCause(), ex.getMessageBindParams());
-        return new ResponseEntity<Object>(ex.getResponseBody(), ex.getResponseHeaders(), ex.getStatusCode());
+        HttpHeaders responseHeaders = ex.getResponseHeaders() != null ? new HttpHeaders(ex.getResponseHeaders()) : null;
+        return new ResponseEntity<Object>(ex.getResponseBody(), responseHeaders, ex.getStatusCode());
     }
 
     /**

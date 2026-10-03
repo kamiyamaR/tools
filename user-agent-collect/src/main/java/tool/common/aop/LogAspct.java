@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
@@ -116,7 +116,7 @@ public class LogAspct {
             if (result instanceof ResponseEntity) {
                 @SuppressWarnings(value = { "unchecked" })
                 ResponseEntity<Object> responseEntity = (ResponseEntity<Object>) result;
-                log.debug("Status Code：{}", responseEntity.getStatusCodeValue());
+                log.debug("Status Code：{}", responseEntity.getStatusCode().value());
                 Object body = responseEntity.getBody();
                 if (Objects.isNull(body)) {
                     log.debug("Response body is null.");

@@ -64,8 +64,10 @@ public class RepositoryAccessorApacheHttpClient5 implements RepositoryAccessor {
             httpRequest.setConfig(requestConfig);
             if (Objects.nonNull(input.getHeaders())) {
                 for (Entry<String, List<String>> entry : input.getHeaders().entrySet()) {
-                    if (HttpHeaders.HOST.toLowerCase().equals(entry.getKey().toLowerCase())) {
-                        // hostヘッダは設定しない
+                    if (HttpHeaders.HOST.equalsIgnoreCase(entry.getKey())
+                            || HttpHeaders.CONTENT_LENGTH.equalsIgnoreCase(entry.getKey())
+                            || HttpHeaders.TRANSFER_ENCODING.equalsIgnoreCase(entry.getKey())) {
+                        // 接続先と送信本文に合わせてHttpClientが設定するヘッダは転送しない
                         continue;
                     }
                     for (String value : entry.getValue()) {

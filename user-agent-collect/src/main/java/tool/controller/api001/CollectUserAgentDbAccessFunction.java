@@ -1,18 +1,19 @@
 package tool.controller.api001;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import lombok.extern.slf4j.Slf4j;
 import tool.common.db.mysql.dao.MysqlDbUserAgentInfDao;
 import tool.common.db.mysql.dto.MysqlDbUserAgentInfDto;
 import tool.common.db.mysql.transaction.MysqlDbTransactionalRead;
-import tool.common.db.mysql.transaction.MysqlDbTransactionalWrite;
 import tool.common.db.postgresql.dao.PostgresqlDbUserAgentInfDao;
 import tool.common.db.postgresql.dao.SequenceNumCreateDao;
 import tool.common.db.postgresql.dto.PostgresqlDbUserAgentInfDto;
 import tool.common.db.postgresql.transaction.PostgresqlDbTransactionalRead;
-import tool.common.db.postgresql.transaction.PostgresqlDbTransactionalWrite;
 
 /**
  * 
@@ -22,6 +23,16 @@ import tool.common.db.postgresql.transaction.PostgresqlDbTransactionalWrite;
 @Slf4j
 @Component
 public class CollectUserAgentDbAccessFunction {
+
+    private final TransactionTemplate postgresqlWriteTransaction;
+    private final TransactionTemplate mysqlWriteTransaction;
+
+    public CollectUserAgentDbAccessFunction(
+            @Qualifier("postgresqlDbTransactionManager") PlatformTransactionManager postgresqlTransactionManager,
+            @Qualifier("mysqlDbTransactionManager") PlatformTransactionManager mysqlTransactionManager) {
+        this.postgresqlWriteTransaction = new TransactionTemplate(postgresqlTransactionManager);
+        this.mysqlWriteTransaction = new TransactionTemplate(mysqlTransactionManager);
+    }
 
     @Autowired
     private SequenceNumCreateDao sequenceNumCreateDao;
@@ -64,9 +75,14 @@ public class CollectUserAgentDbAccessFunction {
      * 
      * @param userAgent
      */
-    @PostgresqlDbTransactionalWrite
-    @MysqlDbTransactionalWrite
     public void registDb(String userAgent) {
+        // Independent local transactions: exceptions before commit roll back both,
+        // but a PostgreSQL commit failure can occur after MySQL has committed.
+        this.postgresqlWriteTransaction.executeWithoutResult(postgresqlStatus ->
+                this.mysqlWriteTransaction.executeWithoutResult(mysqlStatus -> insertIntoBothDatabases(userAgent)));
+    }
+
+    private void insertIntoBothDatabases(String userAgent) {
 
         Integer sequenceNum = this.sequenceNumCreateDao.nextVal();
         log.debug("シーケンス番号：[{}]", sequenceNum);

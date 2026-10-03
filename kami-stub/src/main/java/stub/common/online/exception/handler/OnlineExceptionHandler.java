@@ -2,6 +2,7 @@ package stub.common.online.exception.handler;
 
 import java.util.Arrays;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -35,7 +36,8 @@ public class OnlineExceptionHandler extends ResponseEntityExceptionHandler {
         request.getParameterMap()
                 .forEach((paramName, paramValues) -> log.info(" {}:{}", paramName, Arrays.toString(paramValues)));
 
-        return new ResponseEntity<Object>(ex.getResponseBody(), ex.getResponseHeaders(), ex.getStatusCode());
+        HttpHeaders responseHeaders = ex.getResponseHeaders() != null ? new HttpHeaders(ex.getResponseHeaders()) : null;
+        return new ResponseEntity<Object>(ex.getResponseBody(), responseHeaders, ex.getStatusCode());
     }
 
     /**

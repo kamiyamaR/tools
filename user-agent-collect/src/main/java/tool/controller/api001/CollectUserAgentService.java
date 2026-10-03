@@ -7,8 +7,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 import lombok.extern.slf4j.Slf4j;
 import tool.common.constant.Constant;
@@ -51,7 +49,7 @@ public class CollectUserAgentService {
             builder.append(Constant.SEC_CH_UA_PLATFORM_VERSION);
             String value = builder.toString();
 
-            MultiValueMap<String, String> headers = new LinkedMultiValueMap<String, String>();
+            HttpHeaders headers = new HttpHeaders();
             headers.add(Constant.ACCEPT_CH, value);
             headers.add(HttpHeaders.LOCATION, "/api001");
 

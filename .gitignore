@@ -1,0 +1,6 @@
+/verification/maven-repository/
+/verification/maven-wrapper-cache/
+/verification/verification-run-*/
+/verification/git-evidence.json
+/verification/*-smoke/
+/verification/user-agent-collect-runtime-classpath.txt

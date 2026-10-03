@@ -1,0 +1,44 @@
+name: uac-db-test
+services:
+  mysql:
+    image: mysql:8.4.11@sha256:6ea90827b1100f8f2ae306a539f86d2c264a26ed435a2a9f75551dd5c3aeb242
+    platform: linux/amd64
+    environment:
+      MYSQL_DATABASE: uac_integration
+      MYSQL_USER: uac_test
+      MYSQL_PASSWORD: playground_test_only
+      MYSQL_ROOT_PASSWORD: playground_root_only
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_bin"]
+    ports:
+      - "127.0.0.1:13306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=$$MYSQL_PASSWORD mysql -h 127.0.0.1 -u $$MYSQL_USER -D $$MYSQL_DATABASE -e 'SELECT COUNT(*) FROM user_agent_inf' >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+  postgres:
+    image: postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650
+    platform: linux/amd64
+    environment:
+      POSTGRES_DB: uac_integration
+      POSTGRES_USER: uac_test
+      POSTGRES_PASSWORD: playground_test_only
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      - "127.0.0.1:15432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+      - ./postgres:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "PGPASSWORD=$$POSTGRES_PASSWORD psql -h 127.0.0.1 -U $$POSTGRES_USER -d $$POSTGRES_DB -v ON_ERROR_STOP=1 -c 'SELECT COUNT(*) FROM user_agent_inf' >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 15s
+volumes:
+  mysql_data:
+  postgres_data:
